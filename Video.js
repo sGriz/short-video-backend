@@ -8,6 +8,6 @@ const shortVideoSchema = mongoose.Schema({
     likes: String,
     shares: String,
     messages: String
-})
+});
 
 export default mongoose.model('shortVideos', shortVideoSchema)

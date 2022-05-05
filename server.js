@@ -1,7 +1,12 @@
 import express, { application } from 'express'
 import mongoose from 'mongoose'
 import Cors from 'cors'
-import Videos from './dbModel.js'
+import Videos from './Video.js'
+import User from './User.js'
+import 'dotenv/config'
+import session from 'express-session'
+import passport from 'passport'
+import GoogleStrategy from 'passport-google-oauth20'
 
 //App Config
 const app = express()
@@ -11,12 +16,44 @@ const connection_url = 'mongodb+srv://sam:cuRules123@cluster0.kgnxb.mongodb.net/
 //Middleware
 app.use(express.json())
 app.use(Cors())
+app.use(session({
+    secret: "A secret.",
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(User.createStrategy());
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  User.findById(id, function(err, user) {
+    done(err, user);
+  });
+});
+
+passport.use(new GoogleStrategy({
+    clientID: process.env.CLIENT_ID,
+    clientSecret: process.env.CLIENT_SECRET,
+    callbackURL: "https://short-video-frontend-a286d.web.app/auth/google/callback",
+    userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
+  },
+  function(accessToken, refreshToken, profile, cb) {
+    User.findOrCreate({ googleId: profile.id, username: profile.id }, function (err, user) {
+      return cb(err, user);
+    });
+  }
+));
 
 //DB Config
 mongoose.connect(connection_url, {})
 
 //API Endpoints
-app.get("/", (req, res) => res.status(200).send("Hello TheWebDev"))
+app.get("/", (req, res) => res.status(200).send("Hello world!"))
 
 app.post('/v2/posts', (req, res) => {
     const dbVideos = req.body
@@ -36,6 +73,21 @@ app.get('/v2/posts', (req, res) => {
             res.status(200).send(data)
         }
     })
+})
+
+app.get("/auth/google",
+  passport.authenticate("google", { scope: ["profile"] })
+)
+
+app.get("/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: "https://shortvideo-gryz.herokuapp.com" }),
+  function(req, res) {
+    // Successful authentication, redirect secrets.
+    res.redirect("https://shortvideo-gryz.herokuapp.com");
+})
+
+app.get("/logout", function(req, res){
+    res.redirect("https://shortvideo-gryz.herokuapp.com");
 })
     
 //Listener
