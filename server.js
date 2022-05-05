@@ -51,9 +51,9 @@ passport.deserializeUser(function(id, done) {
 mongoose.connect(connection_url, {})
 
 //Use the req.isAuthenticated() function to check if user is Authenticated
-function checkAuthenticated (req, res, next) {
+const checkAuthenticated = (req, res, next) => {
     if (req.isAuthenticated()) { return next() }
-    res.redirect("/auth/google")
+    res.redirect("/")
 }
 
 //API Endpoints
