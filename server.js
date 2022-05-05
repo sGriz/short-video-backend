@@ -26,36 +26,41 @@ app.use(passport.session());
 
 passport.use(User.createStrategy());
 
-passport.serializeUser(function(user, done) {
-  done(null, user.id);
-});
-
-passport.deserializeUser(function(id, done) {
-  User.findById(id, function(err, user) {
-    done(err, user);
-  });
-});
-
 passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
     callbackURL: "https://shortvideo-gryz.herokuapp.com/auth/google/callback",
-    userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
+    passReqToCallback: true
   },
   function(accessToken, refreshToken, profile, cb) {
     User.findOrCreate({ googleId: profile.id, username: profile.id }, function (err, user) {
       return cb(err, user);
     });
-  }
-));
+}))
+
+passport.serializeUser(function(user, done) {
+    done(null, user.id);
+});
+  
+passport.deserializeUser(function(id, done) {
+    User.findById(id, function(err, user) {
+      done(err, user);
+    });
+});
 
 //DB Config
 mongoose.connect(connection_url, {})
 
+//Use the req.isAuthenticated() function to check if user is Authenticated
+checkAuthenticated = (req, res, next) => {
+    if (req.isAuthenticated()) { return next() }
+    res.redirect("/auth/google")
+}
+
 //API Endpoints
 app.get("/", (req, res) => res.status(200).send("Hello world!"))
 
-app.post('/v2/posts', (req, res) => {
+app.post('/v2/posts', checkAuthenticated, (req, res) => {
     const dbVideos = req.body
     Videos.create(dbVideos, (err, data) => {
         if(err)
@@ -65,7 +70,7 @@ app.post('/v2/posts', (req, res) => {
     })
 })
 
-app.get('/v2/posts', (req, res) => {
+app.get('/v2/posts', checkAuthenticated, (req, res) => {
     Videos.find((err, data) => {
         if(err) {
             res.status(500).send(err)
@@ -87,6 +92,7 @@ app.get("/auth/google/callback",
 })
 
 app.get("/logout", function(req, res){
+    req.logOut()
     res.redirect("https://short-video-frontend-a286d.web.app");
 })
     
