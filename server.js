@@ -38,7 +38,7 @@ passport.use(new GoogleStrategy({
 }))
 
 passport.serializeUser(function(user, done) {
-    done(null, user);
+    done(null, user.id);
 });
   
 passport.deserializeUser(function(id, done) {
@@ -71,7 +71,7 @@ app.post('/v2/posts', checkAuthenticated, (req, res) => {
 
 app.get('/v2/posts', (req, res) => {
     Videos.find((err, data) => {
-        if(err || (req.isAuthenticated != true)) {
+        if(err) {
             res.status(500).send(err)
         } else {
             res.status(200).send(data)
