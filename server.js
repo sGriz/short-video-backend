@@ -59,7 +59,7 @@ const checkAuthenticated = (req, res, next) => {
 //API Endpoints
 app.get("/", (req, res) => res.status(200).send("Hello world!"))
 
-app.post('/v2/posts', checkAuthenticated, (req, res) => {
+app.post('/v2/posts', (req, res) => {
     const dbVideos = req.body
     Videos.create(dbVideos, (err, data) => {
         if(err)
