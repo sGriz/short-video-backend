@@ -71,7 +71,7 @@ app.post('/v2/posts', checkAuthenticated, (req, res) => {
 
 app.get('/v2/posts', (req, res) => {
     Videos.find((err, data) => {
-        if(err || (res.isAuthenticated != true)) {
+        if(err || (req.isAuthenticated != true)) {
             res.status(500).send(err)
         } else {
             res.status(200).send(data)
