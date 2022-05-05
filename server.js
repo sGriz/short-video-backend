@@ -39,7 +39,7 @@ passport.deserializeUser(function(id, done) {
 passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    callbackURL: "https://short-video-frontend-a286d.web.app/auth/google/callback",
+    callbackURL: "https://shortvideo-gryz.herokuapp.com/auth/google/callback",
     userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
   },
   function(accessToken, refreshToken, profile, cb) {
@@ -80,14 +80,14 @@ app.get("/auth/google",
 )
 
 app.get("/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "https://shortvideo-gryz.herokuapp.com" }),
+  passport.authenticate("google", { failureRedirect: "https://short-video-frontend-a286d.web.app" }),
   function(req, res) {
     // Successful authentication, redirect secrets.
-    res.redirect("https://shortvideo-gryz.herokuapp.com");
+    res.redirect("https://short-video-frontend-a286d.web.app");
 })
 
 app.get("/logout", function(req, res){
-    res.redirect("https://shortvideo-gryz.herokuapp.com");
+    res.redirect("https://short-video-frontend-a286d.web.app");
 })
     
 //Listener
