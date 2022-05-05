@@ -29,8 +29,7 @@ passport.use(User.createStrategy());
 passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    callbackURL: "https://shortvideo-gryz.herokuapp.com/auth/google/callback",
-    passReqToCallback: true
+    callbackURL: "https://shortvideo-gryz.herokuapp.com/auth/google/callback"
   },
   function(accessToken, refreshToken, profile, cb) {
     User.findOrCreate({ googleId: profile.id, username: profile.id }, function (err, user) {
